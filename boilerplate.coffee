@@ -12,8 +12,9 @@ app.configure ()->
   app.set 'title', 'Boilerplate'
   app.set 'views', __dirname + '/views'
   app.set 'view engine', 'jade'
-  app.set 'view options', layout: true
 
+  app.locals.layout = true
+  
   app.use express.bodyParser()
   app.use express.methodOverride()
   app.use app.router
@@ -24,6 +25,7 @@ app.configure ()->
 # development only
 app.configure 'development', () ->
   # set development configuration here
+  app.locals.pretty = true
 
 # production only
 app.configure 'production', () ->
