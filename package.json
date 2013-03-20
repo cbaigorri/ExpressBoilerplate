@@ -1,14 +1,13 @@
 {
-  "name": "leap-motion-hello-world"
+  "name": "express-boilerplate"
   , "version": "0.0.1"
   , "author": "Chris Baigorri <cbaigorri@gmail.com>"
-  , "description": "A simple hello world application to experiment with the Leap Motion dev kit"
+  , "description": "A starting point for Express based apps using Coffeescript and Jade"
   , "repository": {
       "type": "git"
     }
   , "dependencies": {
-      "leapjs": "0.1.x"
-      , "coffee-script": "*"
+      "coffee-script": "*"
       , "express": "3.x"
       , "jade": "*"
       , "less-middleware": "*"
