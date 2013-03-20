@@ -5235,6 +5235,10 @@ a.badge:focus {
 .hero-unit li {
   line-height: 30px;
 }
+body {
+  background: #EFEFEF;
+  color: #000;
+}
 .pull-right {
   float: right;
 }
