@@ -2,49 +2,56 @@
 Express Boilerplate
 ###
 
-express = require 'express'
-lessMiddleware = require 'less-middleware'
+env = process.env.NODE_ENV || 'development'
 
+path = require 'path'
+express = require 'express'
+bodyParser = require 'body-parser'
+methodOverride = require 'method-override'
+lessMiddleware = require 'less-middleware'
+morgan = require 'morgan'
 
 app = express()
 
-# all environments
-app.configure ()->
-  app.set 'title', 'Express Boilerplate'
-  app.set 'views', __dirname + '/views'
-  app.set 'view engine', 'jade'
+app.set 'title', 'Express Boilerplate'
+app.set 'views', __dirname + '/views'
+app.set 'view engine', 'jade'
 
-  app.locals.layout = true
-  
-  app.use express.bodyParser()
-  app.use express.methodOverride()
-  app.use app.router
-  app.use lessMiddleware(
-    src: __dirname + '/src'
+app.locals.layout = true
+
+app.use morgan('dev')
+app.use bodyParser.json()
+app.use bodyParser.urlencoded( extended: true )
+app.use methodOverride()
+app.use lessMiddleware path.join(__dirname, '/src'),
     dest: __dirname + '/out'
+  ,
     yuicompress: (process.env.NODE_ENV is 'production')
+    sourceMap: (process.env.NODE_ENV is 'development')
     compress: (process.env.NODE_ENV is 'production')
-  )
-  app.use require('connect-coffee-script')(
-    src: __dirname + '/src'
-    dest: __dirname + '/out'
-  )
-  app.use express.static(__dirname + '/out')
+
+app.use require('connect-coffee-script')(
+  src: __dirname + '/src'
+  dest: __dirname + '/out'
+)
+app.use express.static(__dirname + '/out')
+
 
 # development only
-app.configure 'development', () ->
+if env == 'development'
   # set development configuration here
   app.locals.pretty = true
 
 # production only
-app.configure 'production', () ->
+if env == 'production'
   # set production configuration here
+  console.log 'prod'
 
 
 # routes
 app.get '/', (req, res) ->
-  res.render 'index', {
+  res.render 'index',
     title: "Home"
-  }
 
 app.listen 3000
+console.log 'listening on port 3000'
