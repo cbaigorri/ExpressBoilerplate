@@ -26,6 +26,8 @@ fi
 # sudo cp /resources/ssl-certs/* /ssl-certs
 # sudo chmod 600 /ssl-certs/*.key
 
+sudo useradd --no-create-home nginx
+
 # start up the server
 sudo service nginx start
 
