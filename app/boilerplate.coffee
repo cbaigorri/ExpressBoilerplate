@@ -4,86 +4,117 @@ Express Boilerplate
 
 env = process.env.NODE_ENV || 'development'
 
+EventEmitter = require('events').EventEmitter
+pkg = require './package'
+fs = require 'fs'
 path = require 'path'
 express = require 'express'
+coffeescript = require 'connect-coffee-script'
 bodyParser = require 'body-parser'
+serveStatic = require 'serve-static'
 methodOverride = require 'method-override'
 lessMiddleware = require 'less-middleware'
 morgan = require 'morgan'
 
-app = express()
+class BoilerplateApp extends EventEmitter
 
-app.set 'title', 'Express Boilerplate'
-app.set 'views', __dirname + '/views'
-app.set 'view engine', 'jade'
+  ###
+  Constructor
+  ###
+  constructor: ()->
+    console.log ''
+    console.log ''
+    console.log '\x1b[33m'
+    console.log fs.readFileSync(path.join(__dirname, 'BANNER'), {encoding:'utf8'})
+    console.log pkg.name, 'version', pkg.version
+    console.log '\x1b[0m'
+    console.log ''
 
-app.locals.layout = true
+  ###
+  Init
+  ###
+  initialize: ()->
+    @initializeConfigurations()
+    @initializeRoutes()
+    @appServer = @app.listen process.env.PORT, ()=>
+      console.log 'listening on port ', process.env.PORT
+      @emit('BoilerplateApp.ready')
 
-app.use morgan('dev')
-app.use bodyParser.json()
-app.use bodyParser.urlencoded( extended: true )
-app.use methodOverride()
+  ###
+  Init Configurations
+  ###
+  initializeConfigurations: ()->
+    # Paths
+    @staticDir = path.join(__dirname, '/static')
+    @sourceDir = path.join(__dirname, '/src')
 
-# Less
-app.use lessMiddleware path.join(__dirname, '/src'),
-    dest: __dirname + '/out'
-  ,
-    yuicompress: (process.env.NODE_ENV is 'production')
-    sourceMap: (process.env.NODE_ENV is 'development')
-    compress: (process.env.NODE_ENV is 'production')
+    @app = express()
 
-# CoffeeScript
-app.use require('connect-coffee-script')(
-  src: __dirname + '/src'
-  dest: __dirname + '/out'
-)
+    @app.set 'title', 'Express Boilerplate'
 
-# Static dir
-app.use express.static(__dirname + '/out')
+    @app.locals.layout = true
 
-# Robots
-app.use(function (req, res, next) {
-  if req.url == '/robots.txt'
-    res.type 'text/plain'
-    res.send if process.env.NODE_ENV is 'production' then "User-agent: *" else "User-agent: *\nDisallow: /"
-  else
-    next()
+    # Logger
+    @app.use morgan('dev')
+
+    # Body Parser
+    @app.use bodyParser.json
+      limit: '50mb'
+    @app.use bodyParser.urlencoded
+     extended: true
+     limit: '50mb'
+
+     # Method override
+    @app.use methodOverride()
+
+    # Jade
+    @app.set 'views', __dirname + '/views'
+    @app.set 'view engine', 'jade'
+
+    # Less
+    @app.use lessMiddleware @sourceDir,
+      dest: @staticDir
+      render:
+        yuicompress: (process.env.NODE_ENV is 'production')
+        sourceMap: (process.env.NODE_ENV is 'development')
+        compress: (process.env.NODE_ENV is 'production')
+
+    # CoffeeScript - TODO: swap out with browserify or webpack
+    @app.use coffeescript
+      src: @sourceDir
+      dest: @staticDir
+
+    # Static dir
+    @app.use serveStatic @staticDir
+
+    # development only
+    if env == 'development'
+      # set development configuration here
+      @app.locals.pretty = true
+
+    # production only
+    if env == 'production'
+      # set production configuration here
+      console.log 'prod'
+
+  ###
+  Init Routes
+  ###
+  initializeRoutes: ()->
+
+    # Robots
+    require('./lib/routes/robots')(@app)
+
+    # routes
+    @app.get '/', (req, res) ->
+      res.render 'index',
+        title: "Home"
+
+    # 404
+    require('./lib/routes/404')(@app)
 
 
-# development only
-if env == 'development'
-  # set development configuration here
-  app.locals.pretty = true
+boilerplateApp = new BoilerplateApp()
+boilerplateApp.initialize()
 
-# production only
-if env == 'production'
-  # set production configuration here
-  console.log 'prod'
-
-
-# routes
-app.get '/', (req, res) ->
-  res.render 'index',
-    title: "Home"
-
-
-# 404
-app.use (req, res, next) ->
-  res.status(404)
-
-  # html
-  if req.accepts('html')
-    res.render '404', url: req.url
-    return
-
-  # json
-  if req.accepts('json')
-    res.send error: 'Not found'
-    return
-
-  # default to plain-text
-  res.type('txt').send 'Not found'
-
-
-app.listen 3000
-console.log 'listening on port 3000'
+module.exports = boilerplateApp
