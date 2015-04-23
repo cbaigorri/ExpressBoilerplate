@@ -1,8 +1,8 @@
 {
   "name": "express-boilerplate",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Chris Baigorri <cbaigorri@gmail.com>",
-  "description": "A starting point for Express based apps using Vagrant, Coffeescript and Jade",
+  "description": "A starting point for Express based apps using Vagrant, Browserify, Coffeescript, Less and Jade",
   "repository": {
     "type": "git"
   },
