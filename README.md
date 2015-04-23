@@ -1,9 +1,9 @@
 # ExpressBoilerplate
 
-A starting point for Express based apps using Vagrant, Browserify, Coffeescript, Less and Jade
+A starting point for Express based apps using Vagrant, Browserify, Coffeescript, Less and Jade.
 
 
-## Testing
+## Getting started
 
 Starting the server:
 
