@@ -25,19 +25,16 @@ html(class='no-js', lang='en')
       script(src="/js/libs/html5shiv.js")
       script(src="/js/libs/respond.min.js")
 
-
   body
-    .container
-      include includes/navbar
-      .jumbotron
-        h1 Express Boilerplate
-        p Express Boilerplate will help you get your Express application kick started.
-        ul
-          li Coffeescipt
-          li Jade
-          li Less
-          li Bootstrap 3.0.0
-          li jQuery 1.10.2
+
+    header
+      .container
+        include includes/navbar
+
+    .content
+      .container
+        block content
+
     include includes/footer
 
     script(src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
