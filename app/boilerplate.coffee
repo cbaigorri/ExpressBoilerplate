@@ -2,14 +2,16 @@
 Express Boilerplate
 ###
 
-env = process.env.NODE_ENV || 'development'
-
 EventEmitter = require('events').EventEmitter
 pkg = require './package'
 fs = require 'fs'
 path = require 'path'
 express = require 'express'
 coffeescript = require 'connect-coffee-script'
+browserify = require 'browserify-middleware'
+coffeeify = require 'coffeeify'
+# jadeify = require 'jadeify'
+browserifyShim = require 'browserify-shim'
 bodyParser = require 'body-parser'
 serveStatic = require 'serve-static'
 methodOverride = require 'method-override'
@@ -34,6 +36,7 @@ class BoilerplateApp extends EventEmitter
   Init
   ###
   initialize: ()->
+    @env = process.env.NODE_ENV || 'development'
     @initializeConfigurations()
     @initializeRoutes()
     @appServer = @app.listen process.env.PORT, ()=>
@@ -75,25 +78,32 @@ class BoilerplateApp extends EventEmitter
     @app.use lessMiddleware @sourceDir,
       dest: @staticDir
       render:
-        yuicompress: (process.env.NODE_ENV is 'production')
-        sourceMap: (process.env.NODE_ENV is 'development')
-        compress: (process.env.NODE_ENV is 'production')
+        yuicompress: (@env is 'production')
+        sourceMap: (@env is 'development')
+        compress: (@env is 'production')
 
-    # CoffeeScript - TODO: swap out with browserify or webpack
-    @app.use coffeescript
-      src: @sourceDir
-      dest: @staticDir
+    # browserify settings
+    browserify.settings 'transform', [browserifyShim, coffeeify]
+
+    #bundle.js
+    @app.get '/js/bundle.js',
+      browserify path.join(@sourceDir, '/js/script.coffee'),
+          extensions: ['.coffee']
+          minify: (@env is 'production')
+          external: [
+            'jquery'
+          ]
 
     # Static dir
     @app.use serveStatic @staticDir
 
     # development only
-    if env == 'development'
+    if @env == 'development'
       # set development configuration here
       @app.locals.pretty = true
 
     # production only
-    if env == 'production'
+    if @env == 'production'
       # set production configuration here
       console.log 'prod'
 
@@ -102,12 +112,12 @@ class BoilerplateApp extends EventEmitter
   ###
   initializeRoutes: ()->
 
-    # Robots
+    # Robots.txt
     require('./lib/routes/robots')(@app)
 
     # routes
     @app.get '/', (req, res) ->
-      res.render 'index',
+      res.render 'pages/index',
         title: "Home"
 
     # 404

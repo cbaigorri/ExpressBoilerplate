@@ -7,9 +7,11 @@
     "type": "git"
   },
   "scripts": {
+    "start": "coffee index.coffee",
+    "develop": "supervisor -i node_modules -x coffee index.coffee",
+    "test": "make test"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "license": "MIT",
   "engines": {
     "node": ">=0.10"
