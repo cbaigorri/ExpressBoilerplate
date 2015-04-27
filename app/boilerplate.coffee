@@ -3,6 +3,7 @@ Express Boilerplate
 ###
 
 EventEmitter = require('events').EventEmitter
+k = require './constants'
 pkg = require './package'
 fs = require 'fs'
 path = require 'path'
@@ -16,6 +17,7 @@ bodyParser = require 'body-parser'
 serveStatic = require 'serve-static'
 methodOverride = require 'method-override'
 lessMiddleware = require 'less-middleware'
+favicon = require 'serve-favicon'
 morgan = require 'morgan'
 
 class BoilerplateApp extends EventEmitter
@@ -24,13 +26,13 @@ class BoilerplateApp extends EventEmitter
   Constructor
   ###
   constructor: ()->
-    console.log ''
-    console.log ''
-    console.log '\x1b[33m'
-    console.log fs.readFileSync(path.join(__dirname, 'BANNER'), {encoding:'utf8'})
-    console.log pkg.name, 'version', pkg.version
-    console.log '\x1b[0m'
-    console.log ''
+    # console.log ''
+    # console.log ''
+    # console.log '\x1b[33m'
+    # console.log fs.readFileSync(path.join(__dirname, 'BANNER'), {encoding:'utf8'})
+    # console.log pkg.name, 'version', pkg.version
+    # console.log '\x1b[0m'
+    # console.log ''
 
   ###
   Init
@@ -94,6 +96,9 @@ class BoilerplateApp extends EventEmitter
             'jquery'
           ]
 
+    # Favicon
+    @app.use favicon(path.join(@staticDir, '/favicon.ico'))
+
     # Static dir
     @app.use serveStatic @staticDir
 
@@ -101,6 +106,16 @@ class BoilerplateApp extends EventEmitter
     if @env == 'development'
       # set development configuration here
       @app.locals.pretty = true
+
+      # Error test route
+      @app.get '/error', (req, res, next) ->
+        ee = new (require('events').EventEmitter)
+        setTimeout ()->
+          # ee.emit 'error', 'This should break it EE!!!.'
+          # throw new Error('This should break.')
+          # next( throw new Error('This should break.') )
+          # next( new Error('This should break.') ) # doesn't break - needs to be thrown to cause an exception
+          # flerb.bark()
 
     # production only
     if @env == 'production'
@@ -122,6 +137,9 @@ class BoilerplateApp extends EventEmitter
 
     # 404
     require('./lib/routes/404')(@app)
+
+    # Application error handling
+    require('./lib/routes/500')(@app)
 
 
 boilerplateApp = new BoilerplateApp()

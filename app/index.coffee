@@ -18,7 +18,7 @@ exceptionHandler = (err) ->
     console.log "Worker process", cluster.worker.uniqueID, "suicide..."
     cluster.worker.disconnect()
   catch err2
-    logger.error 'Error disconnecting', err2
+    console.log 'Error disconnecting', err2
 
 
 if cluster.isMaster
@@ -35,9 +35,9 @@ if cluster.isMaster
 
 else
 
-  logger.info 'Worker process initiated', cluster.worker.uniqueID
+  console.log 'Worker process initiated', cluster.worker.uniqueID
 
   cluster.worker.process.on 'uncaughtException', exceptionHandler
 
-  api = require('./rest')
-  api.on 'error', exceptionHandler
+  app = require('./boilerplate')
+  app.on 'error', exceptionHandler
