@@ -107,15 +107,8 @@ class BoilerplateApp extends EventEmitter
       # set development configuration here
       @app.locals.pretty = true
 
-      # Error test route
-      @app.get '/error', (req, res, next) ->
-        ee = new (require('events').EventEmitter)
-        setTimeout ()->
-          # ee.emit 'error', 'This should break it EE!!!.'
-          # throw new Error('This should break.')
-          # next( throw new Error('This should break.') )
-          # next( new Error('This should break.') ) # doesn't break - needs to be thrown to cause an exception
-          # flerb.bark()
+      # Error test routes
+      @app.use require('./lib/routes/test')
 
     # production only
     if @env == 'production'
@@ -126,14 +119,11 @@ class BoilerplateApp extends EventEmitter
   Init Routes
   ###
   initializeRoutes: ()->
+    # main routes
+    @app.use require('./lib/routes/main')
 
     # Robots.txt
     require('./lib/routes/robots')(@app)
-
-    # routes
-    @app.get '/', (req, res) ->
-      res.render 'pages/index',
-        title: "Home"
 
     # 404
     require('./lib/routes/404')(@app)
